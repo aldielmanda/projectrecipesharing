@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-5 mb-4 bg-white rounded-4 shadow-sm border">
+    <h1 class="display-5 fw-bold">Katalog Kuliner Kelompok 6</h1>
+    <p class="col-md-9 fs-5 text-muted">Platform eksperimen prinsip Inheritance & Polymorphism OOP dalam aplikasi web dinamis.</p>
+    <div class="d-flex gap-2 mt-4">
+        <a href="{{ url_for('recipes.index') }}" class="btn btn-sm {{ 'btn-dark' if not sel_cat else 'btn-outline-dark' }} rounded-pill px-3">Semua Kategori</a>
+        <a href="{{ url_for('recipes.index', category='appetizer') }}" class="btn btn-sm {{ 'btn-dark' if sel_cat == 'appetizer' else 'btn-outline-dark' }} rounded-pill px-3">Appetizer</a>
+        <a href="{{ url_for('recipes.index', category='main course') }}" class="btn btn-sm {{ 'btn-dark' if sel_cat == 'main course' else 'btn-outline-dark' }} rounded-pill px-3">Main Course</a>
+        <a href="{{ url_for('recipes.index', category='dessert') }}" class="btn btn-sm {{ 'btn-dark' if sel_cat == 'dessert' else 'btn-outline-dark' }} rounded-pill px-3">Dessert</a>
+    </div>
+</div>
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for r in recipes %}
+    <div class="col"><div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+        <div class="card-body p-4 d-flex flex-column">
+            <div>
+                <span class="badge bg-secondary mb-2">{{ r.category | upper }}</span>
+                <span class="badge bg-success mb-2">{{ r.display_meta() }}</span>
+                <h4 class="card-title fw-bold mt-1">{{ r.title }}</h4>
+                <p class="text-muted small">Kreator: <span class="badge bg-light text-dark border">{{ r.author.username }}</span></p>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-3 mt-auto border-top">
+                <span class="text-warning fw-bold fs-5">★ {{ r.get_average_rating() }} <span class="text-muted fs-6">({{ r._review_count }})</span></span>
+                <a href="{{ url_for('recipes.detail', id=r.id) }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">Buka Resep</a>
+            </div>
+        </div>
+    </div></div>
+    {% else %}
+    <div class="col-12 text-center py-5 text-muted">Belum ada resep yang diunggah pada kategori ini.</div>
+    {% endfor %}
+</div>{% endblock %}

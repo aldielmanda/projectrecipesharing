@@ -1,0 +1,1 @@
+def format_steps(text): return text.replace('\n', '<br>')

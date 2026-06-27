@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card shadow p-4 border-0 rounded-4 mx-auto bg-white" style="max-width: 750px;">
+    <h3 class="fw-bold mb-4">{{ title }}</h3>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">{{ form.title.label(class="form-label fw-bold small") }}{{ form.title(class="form-control rounded-3") }}</div>
+        <div class="row">
+            <div class="col-md-6 mb-3">{{ form.category.label(class="form-label fw-bold small") }}{{ form.category(class="form-select rounded-3") }}</div>
+            <div class="col-md-6 mb-3" {% if recipe %}style="display:none;"{% endif %}>
+                {{ form.recipe_type.label(class="form-label fw-bold small") }}{{ form.recipe_type(class="form-select rounded-3", id="tsel", onchange="tf()") }}
+            </div>
+        </div>
+
+        <div id="fdiv" class="mb-3" style="{{ 'display:none;' if recipe and recipe.type != 'food' else '' }}">
+            {{ form.cooking_time.label(class="form-label fw-bold small") }}{{ form.cooking_time(class="form-control rounded-3", placeholder="Menit") }}
+        </div>
+        <div id="ddiv" class="mb-3 form-check" style="{{ 'display:none;' if not recipe or recipe.type != 'drink' else '' }}">
+            {{ form.is_cold_served(class="form-check-input") }}{{ form.is_cold_served.label(class="form-check-label fw-bold small") }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold small">Daftar Komposisi Bahan</label>
+            <div id="wbahan">
+                {% if recipe %}{% for ing in recipe.ingredients %}
+                <div class="row g-2 mb-2"><div class="col-7"><input type="text" name="ing_name" class="form-control form-control-sm" value="{{ ing.name }}" required></div><div class="col-5"><input type="text" name="ing_amount" class="form-control form-control-sm" value="{{ ing.amount }}" required></div></div>
+                {% endfor %}{% else %}
+                <div class="row g-2 mb-2"><div class="col-7"><input type="text" name="ing_name" class="form-control form-control-sm" placeholder="Nama Bahan" required></div><div class="col-5"><input type="text" name="ing_amount" class="form-control form-control-sm" placeholder="Takaran" required></div></div>
+                {% endif %}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="tb()">➕ Tambah Kolom Bahan</button>
+        </div>
+
+        <div class="mb-4">{{ form.steps.label(class="form-label fw-bold small") }}{{ form.steps(class="form-control rounded-3", rows="6") }}</div>
+        {{ form.submit(class="btn btn-primary w-100 py-3 fw-bold rounded-3") }}
+    </form>
+</div>
+<script>
+function tf() {
+    var v = document.getElementById('tsel').value;
+    document.getElementById('fdiv').style.display = (v === 'food') ? 'block' : 'none';
+    document.getElementById('ddiv').style.display = (v === 'drink') ? 'block' : 'none';
+}
+function tb() {
+    var w = document.getElementById('wbahan');
+    var d = document.createElement('div'); d.className = 'row g-2 mb-2';
+    d.innerHTML = '<div class="col-7"><input type="text" name="ing_name" class="form-control form-control-sm" placeholder="Nama Bahan" required></div><div class="col-5"><input type="text" name="ing_amount" class="form-control form-control-sm" placeholder="Takaran" required></div>';
+    w.appendChild(d);
+}
+</script>{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8"><div class="card shadow-sm p-4 border-0 rounded-4 bg-white">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <span class="badge bg-secondary mb-1">{{ recipe.category | upper }}</span>
+                <span class="badge bg-success mb-1">{{ recipe.display_meta() }}</span>
+                <h1 class="fw-bold mt-1 mb-0">{{ recipe.title }}</h1>
+                <p class="text-muted small">Oleh: <strong>{{ recipe.author.username }}</strong></p>
+            </div>
+            {% if current_user.is_authenticated %}
+            <form action="{{ url_for('bookmarks.toggle', recipe_id=recipe.id) }}" method="POST">
+                <button type="submit" class="btn {{ 'btn-danger' if is_bookmarked else 'btn-outline-danger' }} rounded-pill px-4">❤️ {{ 'Tersimpan' if is_bookmarked else 'Favorit' }}</button>
+            </form>
+            {% endif %}
+        </div>
+        <hr>
+        <h5 class="fw-bold mt-2">Bahan-Bahan:</h5>
+        <div class="row row-cols-2 g-2 my-2">
+            {% for ing in recipe.ingredients %}
+            <div class="col"><div class="p-2 bg-light rounded-3 d-flex justify-content-between border small">
+                <span>{{ ing.name }}</span><strong class="text-primary">{{ ing.amount }}</strong>
+            </div></div>
+            {% endfor %}
+        </div>
+        <h5 class="fw-bold mt-4">Instruksi Pengolahan:</h5>
+        <div class="p-4 bg-light rounded-4 border lh-lg font-monospace small" style="white-space: pre-wrap;">{{ recipe.steps }}</div>
+
+        {% if current_user.is_authenticated and (recipe.user_id == current_user.id or current_user.is_admin()) %}
+        <div class="d-flex gap-2 mt-4 pt-3 border-top">
+            <a href="{{ url_for('recipes.edit', id=recipe.id) }}" class="btn btn-warning btn-sm px-4 rounded-pill">Sunting Konten</a>
+            <form action="{{ url_for('recipes.delete', id=recipe.id) }}" method="POST" onsubmit="return confirm('Yakin hapus resep ini?')">
+                <button type="submit" class="btn btn-danger btn-sm px-4 rounded-pill">Hapus</button>
+            </form>
+        </div>
+        {% endif %}
+    </div></div>
+
+    <div class="col-lg-4"><div class="card shadow-sm p-4 border-0 rounded-4 bg-white">
+        <h5 class="fw-bold">Ulasan & Rating</h5>
+        <div class="d-flex align-items-center my-2">
+            <h2 class="text-warning mb-0 me-2">★ {{ recipe.get_average_rating() }}</h2>
+            <span class="text-muted small">/ 5.0 ({{ recipe._review_count }} ulasan)</span>
+        </div>
+        <hr>
+        {% if current_user.is_authenticated %}
+        <form method="POST" class="mb-4">
+            {{ form.hidden_tag() }}
+            <label class="form-label small fw-bold">Berikan Penilaian Anda:</label>
+            {{ form.rating(class="form-select form-select-sm mb-2") }}
+            {{ form.comment(class="form-control form-control-sm mb-2", rows="2", placeholder="Komentar rasa...") }}
+            {{ form.submit(class="btn btn-primary btn-sm w-100 rounded-3") }}
+        </form>
+        {% endif %}
+        <div class="d-flex flex-column gap-2" style="max-height: 400px; overflow-y: auto;">
+            {% for r in recipe.reviews %}
+            <div class="p-3 bg-light rounded-3 border">
+                <div class="d-flex justify-content-between small">
+                    <strong>{{ r.reviewer.username }}</strong><span class="text-warning">★ {{ r.rating }}</span>
+                </div>
+                <p class="mb-0 text-muted small mt-1">{{ r.comment or 'Tidak meninggalkan pesan.' }}</p>
+            </div>
+            {% else %}<p class="text-muted small text-center my-3">Belum ada ulasan.</p>{% endfor %}
+        </div>
+    </div></div>
+</div>{% endblock %}
